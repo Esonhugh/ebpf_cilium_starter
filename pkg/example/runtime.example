@@ -1,0 +1,36 @@
+package example
+
+import (
+	"ebpf_common/pkg/ebpf"
+	log "github.com/sirupsen/logrus"
+)
+
+func ExampleDemo() {
+	e := ebpf.New()
+	var err error
+	err = e.CreateCiliumEBPFRuntime(false)
+	if err != nil {
+		log.Panicln(err)
+	}
+	/*
+	defer func(e *ebpf.CiliumEBPFRuntime) {
+		err := e.Close()
+		if err != nil {
+			log.Panicln(err)
+		}
+	}(e)
+	*/
+	defer e.Close()
+	err = e.CreateLink()
+	if err != nil {
+		log.Panicln(err)
+	}
+	log.Info("Injecting ebpf program into file system success.")
+	// var blocker = make(chan os.Signal, 1)
+	// signal.Notify(blocker, os.Interrupt, os.Kill)
+	err = e.OtherOps()
+	if err != nil {
+		log.Panicln(err)
+	}
+	// <- blocker
+}
